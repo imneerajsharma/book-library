@@ -13,7 +13,7 @@ import java.time.LocalDate;
  * Entity representing a Book document in MongoDB.
  */
 @Document(collection = "books")
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

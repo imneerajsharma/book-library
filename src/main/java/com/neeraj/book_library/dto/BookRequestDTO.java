@@ -15,22 +15,26 @@ import java.time.LocalDate;
  */
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @Builder
+@Schema(description = "Book creation/update request payload")
 public class BookRequestDTO {
 
+    @Schema(description = "Title of the book", example = "Effective Java")
     @NotBlank(message = "Title must not be blank")
     @Size(max = 100, message = "Title must not exceed 100 characters")
     private String title;
 
+    @Schema(description = "Author of the book", example = "Joshua Bloch")
     @NotBlank(message = "Author must not be blank")
     @Size(max = 100, message = "Author must not exceed 100 characters")
     private String author;
 
+    @Schema(description = "Short description of the book", example = "A comprehensive guide to best practices in Java programming")
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
+    @Schema(description = "ISBN identifier", example = "978-0134685991")
     @NotBlank(message = "ISBN must not be blank")
     @Size(max = 20, message = "ISBN must not exceed 20 characters")
     private String isbn;

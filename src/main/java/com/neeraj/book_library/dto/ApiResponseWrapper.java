@@ -3,6 +3,7 @@ package com.neeraj.book_library.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 
 import java.time.Instant;
@@ -12,7 +13,7 @@ import java.time.Instant;
  *
  * @param <T> the type of the actual response payload
  */
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
 @Schema(description = "Standard response wrapper for all API responses")

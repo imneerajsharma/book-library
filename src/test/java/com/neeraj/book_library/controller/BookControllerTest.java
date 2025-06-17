@@ -99,7 +99,7 @@ class BookControllerTest {
     void testGetAllBooks() throws Exception {
         BookPageResponse response = new BookPageResponse(
                 Collections.singletonList(bookResponse), 1L, 1, 0, 10);
-        when(bookService.getAllBooks(0, 10)).thenReturn(response);
+        when(bookService.getBooksPaginated(0, 10, "asc", "title")).thenReturn(response);
 
         mockMvc.perform(get("/api/books"))
                 .andExpect(status().isOk())

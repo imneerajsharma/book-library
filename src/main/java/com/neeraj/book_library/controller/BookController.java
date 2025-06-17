@@ -7,13 +7,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/books")
@@ -27,52 +25,52 @@ public class BookController {
             @ApiResponse(responseCode = "400", description = "Validation error or duplicate ISBN")
     })
     @PostMapping
-    public ResponseEntity<ApiResponseWrapper<BookResponseDTO>> createBook(@Valid @RequestBody BookRequestDTO bookRequestDTO) {
-        BookResponseDTO savedBook = bookService.createBook(bookRequestDTO);
-        log.info("Created book with ID: {}", savedBook.getId());
+    public ResponseEntity<ApiResponseWrapper<BookResponseDTO>> createBook(
+            @Valid @RequestBody BookRequestDTO bookRequestDTO) {
+        final BookResponseDTO savedBook = bookService.createBook(bookRequestDTO);
         return ResponseEntity.ok(ApiResponseWrapper.success("Book created successfully", savedBook));
     }
 
     @PostMapping("/bulk")
-    public ResponseEntity<ApiResponseWrapper<List<BookResponseDTO>>> createBooksBulk(@Valid @RequestBody List<BookRequestDTO> bookRequestDTOs) {
-        List<BookResponseDTO> savedBooks = bookService.createBooksBulk(bookRequestDTOs);
-        log.info("Bulk created {} books", savedBooks.size());
-        return ResponseEntity.ok(ApiResponseWrapper.success("Books created successfully", savedBooks));
+    public ResponseEntity<ApiResponseWrapper<List<BookResponseDTO>>> createBooksBulk(
+            @Valid @RequestBody List<BookRequestDTO> bookRequestDTOs) {
+        final List<BookResponseDTO> createdBooks = bookService.createBooksBulk(bookRequestDTOs);
+        return ResponseEntity.ok(ApiResponseWrapper.success("Books created successfully", createdBooks));
     }
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponseWrapper<List<BookResponseDTO>>> getAllBooksUnpaged() {
-        List<BookResponseDTO> books = bookService.getAllBooksUnpaged();
+        final List<BookResponseDTO> books = bookService.getAllBooks();
         return ResponseEntity.ok(ApiResponseWrapper.success("Books fetched successfully", books));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponseWrapper<BookPageResponse>> getAllBooks(
+    public ResponseEntity<ApiResponseWrapper<BookPageResponse>> getBooksPaginated(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        BookPageResponse books = bookService.getAllBooks(page, size);
-        return ResponseEntity.ok(ApiResponseWrapper.success("Books fetched successfully", books));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(defaultValue = "title") String sortBy) {
+        final BookPageResponse paginatedBooks = bookService.getBooksPaginated(page, size, sortDirection, sortBy);
+        return ResponseEntity.ok(ApiResponseWrapper.success("Books fetched successfully", paginatedBooks));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseWrapper<BookResponseDTO>> getBookById(@PathVariable String id) {
-        BookResponseDTO bookDTO = bookService.getBookById(id);
-        return ResponseEntity.ok(ApiResponseWrapper.success("Book fetched successfully", bookDTO));
+        final BookResponseDTO book = bookService.getBookById(id);
+        return ResponseEntity.ok(ApiResponseWrapper.success("Book fetched successfully", book));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponseWrapper<BookResponseDTO>> updateBook(@PathVariable String id, @Valid @RequestBody BookRequestDTO bookRequestDTO) {
-        BookResponseDTO updatedBook = bookService.updateBook(id, bookRequestDTO);
-        log.info("Updated book with ID: {}", id);
+    public ResponseEntity<ApiResponseWrapper<BookResponseDTO>> updateBook(
+            @PathVariable String id,
+            @Valid @RequestBody BookRequestDTO bookRequestDTO) {
+        final BookResponseDTO updatedBook = bookService.updateBook(id, bookRequestDTO);
         return ResponseEntity.ok(ApiResponseWrapper.success("Book updated successfully", updatedBook));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponseWrapper<DeleteResponseDTO>> deleteBook(@PathVariable String id) {
-        DeleteResponseDTO deleted = bookService.deleteBookWithDetails(id);
-        log.info("Deleted book with ID: {}", id);
-        return ResponseEntity.ok(ApiResponseWrapper.success("Book deleted successfully", deleted));
+        final DeleteResponseDTO deleteResponse = bookService.deleteBook(id);
+        return ResponseEntity.ok(ApiResponseWrapper.success("Book deleted successfully", deleteResponse));
     }
 }
-

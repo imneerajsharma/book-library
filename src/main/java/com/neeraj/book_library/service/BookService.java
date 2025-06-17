@@ -43,16 +43,19 @@ public interface BookService {
      *
      * @return list of all books as response DTOs
      */
-    List<BookResponseDTO> getAllBooksUnpaged();
+    List<BookResponseDTO> getAllBooks();
 
     /**
-     * Retrieves books with pagination.
+     * Retrieves books in a paginated format with support for dynamic sorting.
      *
-     * @param page the page number (0-indexed)
-     * @param size the number of items per page
-     * @return paginated response containing books and metadata
+     * @param page          the 0-based page index to retrieve
+     * @param size          the number of books per page
+     * @param sortDirection the direction of sorting: "asc" for ascending or "desc" for descending
+     * @param sortBy        the field to sort by (e.g., "title", "author", "publishedDate")
+     * @return a paginated response containing books and metadata
      */
-    BookPageResponse getAllBooks(int page, int size);
+    BookPageResponse getBooksPaginated(int page, int size, String sortDirection, String sortBy);
+
 
     /**
      * Updates an existing book by its ID using the provided request DTO.
@@ -65,10 +68,10 @@ public interface BookService {
     BookResponseDTO updateBook(String id, BookRequestDTO bookRequestDTO);
 
     /**
-     * Deletes a book by its ID.
+     * Deletes a book by its ID and returns detailed information about the deleted book.
      *
      * @param id the ID of the book to delete
-     * @return a success message or status (if applicable)
+     * @return a {@link DeleteResponseDTO} with metadata about the deleted book
      * @throws com.neeraj.book_library.exception.BookNotFoundException if the book is not found
      */
     DeleteResponseDTO deleteBook(String id);
@@ -80,17 +83,4 @@ public interface BookService {
      * @return the saved book entity
      */
     Book saveBook(Book book);
-
-    /**
-     * Deletes a book by its ID and returns detailed information about the deleted book.
-     *
-     * This method retrieves the book from the database, deletes it, and returns a {@link DeleteResponseDTO}
-     * containing the book's ID, title, and ISBN. If the book is not found, it throws a {@link BookNotFoundException}.
-     *
-     * @param id the unique identifier of the book to delete
-     * @return a {@link DeleteResponseDTO} containing metadata about the deleted book
-     * @throws BookNotFoundException if the book with the given ID does not exist
-     */
-    DeleteResponseDTO deleteBookWithDetails(String id);
-
 }

@@ -1,6 +1,5 @@
 package com.neeraj.book_library.service;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.neeraj.book_library.dto.BookRequestDTO;
 import com.neeraj.book_library.dto.BookResponseDTO;
 import com.neeraj.book_library.dto.BookPageResponse;
@@ -18,7 +17,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Implementation of BookService handling core business logic.
+ * Implementation of {@link BookService} that handles all business logic
+ * related to creating, retrieving, updating, and deleting book records.
  */
 @Slf4j
 @Service
@@ -29,10 +29,11 @@ public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
 
     /**
-     * Creates a new book after ensuring the ISBN is unique.
+     * Creates a new book after checking for duplicate ISBN.
      *
-     * @param bookRequestDTO the request DTO with book data
-     * @return the created book in response DTO format
+     * @param bookRequestDTO the DTO containing book details
+     * @return the created book as a response DTO
+     * @throws DuplicateBookException if a book with the same ISBN already exists
      */
     @Override
     public BookResponseDTO createBook(BookRequestDTO bookRequestDTO) {
@@ -50,21 +51,20 @@ public class BookServiceImpl implements BookService {
     }
 
     /**
-     * Bulk creates books without duplicate validation for performance.
+     * Bulk creates multiple books. No duplicate ISBN check for performance.
      *
-     * @param bookRequestDTOs list of books to be created
-     * @return list of saved books as response DTOs
+     * @param bookRequestDTOs list of book creation requests
+     * @return list of created books as response DTOs
      */
     @Override
     public List<BookResponseDTO> createBooksBulk(List<BookRequestDTO> bookRequestDTOs) {
         log.info("Bulk creating {} books", bookRequestDTOs.size());
 
-        List<Book> booksToSave = bookRequestDTOs.stream()
+        final List<Book> booksToSave = bookRequestDTOs.stream()
                 .map(bookMapper::toEntity)
                 .toList();
 
         List<Book> savedBooks = bookRepository.saveAll(booksToSave);
-
         log.info("Successfully saved {} books", savedBooks.size());
 
         return savedBooks.stream()
@@ -73,16 +73,17 @@ public class BookServiceImpl implements BookService {
     }
 
     /**
-     * Retrieves a book by ID.
+     * Retrieves a book by its ID.
      *
-     * @param id MongoDB ID of the book
-     * @return corresponding book as a response DTO
+     * @param id the unique ID of the book
+     * @return the book as a response DTO
+     * @throws BookNotFoundException if the book does not exist
      */
     @Override
     public BookResponseDTO getBookById(String id) {
         log.debug("Fetching book with ID: {}", id);
 
-        Book book = bookRepository.findById(id)
+        final Book book = bookRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Book not found with ID: {}", id);
                     return new BookNotFoundException("Book not found with id: " + id);
@@ -97,7 +98,7 @@ public class BookServiceImpl implements BookService {
      * @return list of all books as response DTOs
      */
     @Override
-    public List<BookResponseDTO> getAllBooksUnpaged() {
+    public List<BookResponseDTO> getAllBooks() {
         log.debug("Fetching all books (unpaged)");
 
         return bookRepository.findAll()
@@ -107,17 +108,22 @@ public class BookServiceImpl implements BookService {
     }
 
     /**
-     * Retrieves books with pagination support.
+     * Retrieves books in a paginated format with support for dynamic sorting.
      *
-     * @param page current page (0-indexed)
-     * @param size number of items per page
-     * @return a paginated response with book data
+     * @param page          the 0-based page index to retrieve
+     * @param size          the number of books per page
+     * @param sortDirection the direction of sorting: "asc" for ascending or "desc" for descending (case-insensitive)
+     * @param sortBy        the field name to sort by (e.g., "title", "author", "publishedDate")
+     * @return a paginated response containing books and pagination metadata
      */
     @Override
-    public BookPageResponse getAllBooks(int page, int size) {
-        log.debug("Fetching books paginated - page: {}, size: {}", page, size);
+    public BookPageResponse getBooksPaginated(int page, int size, String sortDirection, String sortBy) {
+        log.debug("Fetching books paginated - page: {}, size: {}, sortBy: {}, sortDirection: {}",
+                page, size, sortBy, sortDirection);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
         Page<Book> bookPage = bookRepository.findAll(pageable);
 
         return BookPageResponse.builder()
@@ -129,82 +135,65 @@ public class BookServiceImpl implements BookService {
                 .build();
     }
 
+
     /**
-     * Updates an existing book based on its ID.
+     * Updates an existing book by ID.
      *
-     * @param id              the book ID
-     * @param bookRequestDTO  updated book fields
+     * @param id              the ID of the book to update
+     * @param bookRequestDTO  the DTO containing updated book details
      * @return the updated book as a response DTO
+     * @throws BookNotFoundException if the book does not exist
      */
     @Override
     public BookResponseDTO updateBook(String id, BookRequestDTO bookRequestDTO) {
         log.info("Updating book with ID: {}", id);
 
-        Book existingBook = bookRepository.findById(id)
+        final Book existingBook = bookRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cannot update. Book not found with ID: {}", id);
                     return new BookNotFoundException("Book not found with id: " + id);
                 });
 
-        bookMapper.updateEntityFromRequest(bookRequestDTO, existingBook);
-        Book updatedBook = bookRepository.save(existingBook);
+        final Book updatedBook = bookMapper.updateEntityFromRequest(bookRequestDTO, existingBook);
+        Book savedBook = bookRepository.save(updatedBook);
 
-        log.info("Book updated successfully with ID: {}", updatedBook.getId());
-        return bookMapper.toResponseDTO(updatedBook);
+        log.info("Book updated successfully with ID: {}", savedBook.getId());
+        return bookMapper.toResponseDTO(savedBook);
     }
 
     /**
-     * Deletes a book by ID and returns deletion details.
+     * Deletes a book by ID.
      *
      * @param id the ID of the book to delete
-     * @return a structured delete response
+     * @return a response message indicating successful deletion
+     * @throws BookNotFoundException if the book does not exist
      */
     @Override
     public DeleteResponseDTO deleteBook(String id) {
         log.info("Deleting book with ID: {}", id);
 
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Delete failed. Book not found with ID: {}", id);
-                    return new BookNotFoundException("Book not found with id: " + id);
-                });
+        if (!bookRepository.existsById(id)) {
+            log.error("Delete failed. Book not found with ID: {}", id);
+            throw new BookNotFoundException("Book not found with id: " + id);
+        }
 
         bookRepository.deleteById(id);
-
         log.info("Book deleted successfully with ID: {}", id);
-        return new DeleteResponseDTO(
-                "Book deleted successfully",
-                book.getId(),
-                book.getIsbn(),
-                book.getTitle()
-        );
+        return DeleteResponseDTO.builder()
+                .message("Book deleted successfully")
+                .build();
     }
 
     /**
-     * Persists a Book entity. Intended for internal use only (e.g., test seeding).
+     * Saves a Book entity directly to the database.
+     * Intended for internal use such as testing or seeding.
      *
-     * @param book the book to persist
-     * @return the persisted book
+     * @param book the book entity to save
+     * @return the saved book entity
      */
-
     @Override
     public Book saveBook(Book book) {
         log.debug("Saving book directly via saveBook(Book). ISBN: {}", book.getIsbn());
         return bookRepository.save(book);
     }
-    @Override
-    public DeleteResponseDTO deleteBookWithDetails(String id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
-
-        bookRepository.deleteById(id);
-
-        return DeleteResponseDTO.builder()
-                .message("Book deleted successfully")
-                .deletedBookId(book.getId())
-                .isbn(book.getIsbn())
-                .title(book.getTitle())
-                .build();
-    }
-
 }

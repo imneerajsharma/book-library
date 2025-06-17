@@ -19,16 +19,10 @@ public class BookMapper {
      * @return Book entity or null if input is null
      */
     public Book toEntity(BookRequestDTO dto) {
-        if (dto == null) {
-            return null;
-        }
+        if (dto == null) return null;
 
-        return Book.builder()
-                .title(dto.getTitle())
-                .author(dto.getAuthor())
+        return populateCommonFields(dto)
                 .isbn(dto.getIsbn())
-                .description(dto.getDescription())
-                .publishedDate(dto.getPublishedDate())
                 .build();
     }
 
@@ -39,9 +33,7 @@ public class BookMapper {
      * @return BookResponseDTO or null if input is null
      */
     public BookResponseDTO toResponseDTO(Book entity) {
-        if (entity == null) {
-            return null;
-        }
+        if (entity == null) return null;
 
         return BookResponseDTO.builder()
                 .id(entity.getId())
@@ -62,17 +54,25 @@ public class BookMapper {
      * @return updated Book entity (never null)
      */
     public Book updateEntityFromRequest(BookRequestDTO dto, Book existing) {
-        if (dto == null) {
-            return existing; // no changes if update payload is null
-        }
+        if (dto == null) return existing;
 
+        return populateCommonFields(dto)
+                .id(existing.getId())
+                .isbn(existing.getIsbn())
+                .build();
+    }
+
+    /**
+     * Helper method to map common fields from DTO to Book builder.
+     *
+     * @param dto BookRequestDTO
+     * @return Book.BookBuilder with shared fields populated
+     */
+    private Book.BookBuilder populateCommonFields(BookRequestDTO dto) {
         return Book.builder()
-                .id(existing.getId())           // preserve ID
-                .isbn(existing.getIsbn())       // preserve ISBN
                 .title(dto.getTitle())
                 .author(dto.getAuthor())
                 .description(dto.getDescription())
-                .publishedDate(dto.getPublishedDate())
-                .build();
+                .publishedDate(dto.getPublishedDate());
     }
 }
