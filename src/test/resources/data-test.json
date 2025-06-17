@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Test-Driven Development",
+    "author": "Kent Beck",
+    "isbn": "9780321146533",
+    "description": "Write code that proves itself",
+    "publishedDate": "2003-05-01"
+  },
+  {
+    "title": "The Pragmatic Programmer",
+    "author": "Andy Hunt & Dave Thomas",
+    "isbn": "9780201616224",
+    "description": "From journeyman to master",
+    "publishedDate": "1999-10-30"
+  }
+]

@@ -1,0 +1,22 @@
+# ============ Exclude test sources ============
+src/test/
+src/test/resources/application.properties
+
+# ============ IDE Files ============
+*.iml
+.idea/
+.vscode/
+
+# ============ VCS ============
+.git/
+.gitignore
+
+# ============ Logs ============
+*.log
+logs/
+*.swp
+*.tmp
+.DS_Store
+Thumbs.db
+
+

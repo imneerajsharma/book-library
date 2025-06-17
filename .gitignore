@@ -1,0 +1,16 @@
+# ============ OS & Editor Junk ============
+.DS_Store
+Thumbs.db
+
+# ============ IntelliJ IDEA ============
+.idea/
+*.iml
+*.ipr
+
+# ============ Maven Build ============
+target/
+
+# ============ Logs ============
+*.log
+logs/
+*.tmp

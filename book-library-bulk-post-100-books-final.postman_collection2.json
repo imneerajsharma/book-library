@@ -1,0 +1,9 @@
+{
+  "info": {
+    "name": "Book Library CRUD 100",
+    "_postman_id": "book-library-crud-collection",
+    "description": "CRUD operations for Spring Boot MongoDB Book Library",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [...]
+}

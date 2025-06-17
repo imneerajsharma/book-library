@@ -1,0 +1,23 @@
+[
+  {
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "isbn": "9780132350884",
+    "description": "A Handbook of Agile Software Craftsmanship",
+    "publishedDate": "2008-08-01"
+  },
+  {
+    "title": "Effective Java",
+    "author": "Joshua Bloch",
+    "isbn": "9780134685991",
+    "description": "Best practices for the Java platform",
+    "publishedDate": "2018-01-06"
+  },
+  {
+    "title": "Refactoring",
+    "author": "Martin Fowler",
+    "isbn": "9780201485677",
+    "description": "Improving the Design of Existing Code",
+    "publishedDate": "1999-07-08"
+  }
+]
