@@ -49,7 +49,6 @@ public class DataSeeder implements CommandLineRunner {
 
     private boolean isDatabaseEmpty() {
         return bookRepository.count() == 0;
-        // Or better (if you add a method in repository): return !bookRepository.existsAny();
     }
 
     private List<Book> loadBooksFromJson(Resource jsonFile) {

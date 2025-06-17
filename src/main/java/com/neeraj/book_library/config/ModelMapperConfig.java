@@ -35,6 +35,6 @@ public class ModelMapperConfig {
      */
     @PostConstruct
     public void logBeanInitialization() {
-        log.info("✅ ModelMapper bean initialized and configured with PRIVATE field access.");
+        log.info(" ModelMapper bean initialized and configured with PRIVATE field access.");
     }
 }

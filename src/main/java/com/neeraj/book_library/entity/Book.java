@@ -35,7 +35,6 @@ public class Book {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate publishedDate;
 
-    // Optional: add controlled update methods if removing setters
     public Book withUpdatedInfo(Book other) {
         return Book.builder()
                 .id(this.id)
