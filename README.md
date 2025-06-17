@@ -201,7 +201,8 @@ book_library
 
 
 ```
-
+## Component  Diagram
+![Sequence Diagram - Create Book](diagrams/component-diagram.svg)
 ##  Class Diagram
 The following diagram illustrates the high-level structure of the Book Library system:
 ![Class Diagram](diagrams/class-diagram.svg)
