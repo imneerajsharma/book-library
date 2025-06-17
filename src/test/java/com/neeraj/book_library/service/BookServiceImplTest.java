@@ -193,23 +193,83 @@ class BookServiceImplTest {
 
     @Test
     void shouldThrowDuplicateBookExceptionWhenIsbnExists_bulkCreate() {
-        // TODO: Add test logic for duplicate ISBN in bulk create
+        // Given
+        BookRequestDTO book1 = new BookRequestDTO("Title1", "Author1", "1234567890", LocalDate.now());
+        BookRequestDTO book2 = new BookRequestDTO("Title2", "Author2", "1234567890", LocalDate.now()); // duplicate ISBN
+        List<BookRequestDTO> bookList = List.of(book1, book2);
+
+        Book existingBook = new Book();
+        existingBook.setIsbn("1234567890");
+
+        when(bookRepository.existsByIsbn("1234567890")).thenReturn(true);
+
+        // When / Then
+        assertThrows(DuplicateBookException.class, () -> bookService.bulkCreateBooks(bookList));
+        verify(bookRepository, times(1)).existsByIsbn("1234567890");
+        verify(bookRepository, never()).saveAll(anyList());
     }
 
     @Test
     void shouldReturnEmptyPageWhenNoBooksFound() {
-        // TODO: Setup findAll(Pageable) to return empty and verify response
+        // Given
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("title"));
+        Page<Book> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+
+        when(bookRepository.findAll(pageable)).thenReturn(emptyPage);
+
+        // When
+        BookPageResponse result = bookService.getAllBooksPaged(pageable);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.books().isEmpty());
+        assertEquals(0, result.totalElements());
+        verify(bookRepository).findAll(pageable);
     }
 
     @Test
     void shouldReturnEmptyListWhenNoBooksExist_unpaged() {
-        // TODO: Setup findAll() to return empty and assert empty list returned
+        // Given
+        when(bookRepository.findAll()).thenReturn(List.of());
+
+        // When
+        List<BookResponseDTO> result = bookService.getAllBooks();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(bookRepository).findAll();
     }
 
     @Test
     void shouldPreserveExistingIsbnDuringUpdate() {
-        // TODO: Ensure ISBN field remains unchanged after update
+        // Given
+        String id = "book123";
+        Book existingBook = new Book();
+        existingBook.setId(id);
+        existingBook.setTitle("Old Title");
+        existingBook.setAuthor("Old Author");
+        existingBook.setIsbn("9999999999");
+        existingBook.setPublishedDate(LocalDate.of(2020, 1, 1));
+
+        BookRequestDTO updateRequest = new BookRequestDTO("New Title", "New Author", "SHOULD_BE_IGNORED", LocalDate.of(2022, 2, 2));
+
+        when(bookRepository.findById(id)).thenReturn(Optional.of(existingBook));
+        when(bookRepository.save(any(Book.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        BookResponseDTO updated = bookService.updateBook(id, updateRequest);
+
+        // Then
+        assertEquals("New Title", updated.title());
+        assertEquals("New Author", updated.author());
+        assertEquals("9999999999", updated.isbn()); // ISBN should remain unchanged
+        assertEquals(LocalDate.of(2022, 2, 2), updated.publishedDate());
+
+        verify(bookRepository).findById(id);
+        verify(bookRepository).save(any(Book.class));
     }
+
     @Test
     void testDeleteBook_Successful() {
         Book book = Book.builder()

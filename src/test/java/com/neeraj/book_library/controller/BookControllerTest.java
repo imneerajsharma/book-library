@@ -98,13 +98,7 @@ class BookControllerTest {
     @Test
     void testGetAllBooks() throws Exception {
         BookPageResponse response = new BookPageResponse(
-                Collections.singletonList(bookResponse),
-                1L,   // totalElements (long)
-                1,    // totalPages
-                0,    // currentPage
-                10    // pageSize
-        );
-
+                Collections.singletonList(bookResponse), 1L, 1, 0, 10);
         when(bookService.getAllBooks(0, 10)).thenReturn(response);
 
         mockMvc.perform(get("/api/books"))
@@ -112,7 +106,6 @@ class BookControllerTest {
                 .andExpect(jsonPath("$.data.books[0].title").value("Effective Java"))
                 .andExpect(jsonPath("$.data.totalElements").value(1));
     }
-
 
     @Test
     void testUpdateBook() throws Exception {

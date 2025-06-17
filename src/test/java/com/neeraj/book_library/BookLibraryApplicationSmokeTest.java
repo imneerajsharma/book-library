@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * ✅ Combined application context smoke test.
+ *  Combined application context smoke test.
  * Verifies the Spring Boot application context loads correctly,
  * and that essential beans are initialized.
  */
@@ -28,21 +28,21 @@ class BookLibraryApplicationSmokeTest {
     private BookRepository bookRepository;
 
     @Test
-    @DisplayName("🟢 Spring context loads without exceptions")
+    @DisplayName(" Spring context loads without exceptions")
     void contextLoadsWithoutErrors() {
         log.info("[SmokeTest] Application context loaded successfully.");
         // No assertions needed—test passes if context loads without exception
     }
 
     @Test
-    @DisplayName("✅ BookController bean is loaded")
+    @DisplayName(" BookController bean is loaded")
     void bookControllerBeanIsLoaded() {
         assertThat(bookController).isNotNull();
         log.info("[SmokeTest] BookController bean loaded successfully.");
     }
 
     @Test
-    @DisplayName("✅ BookRepository bean is loaded")
+    @DisplayName(" BookRepository bean is loaded")
     void bookRepositoryBeanIsLoaded() {
         assertThat(bookRepository).isNotNull();
         log.info("[SmokeTest] BookRepository bean loaded successfully.");

@@ -39,7 +39,6 @@ class BookControllerIntegrationTest {
         bookRepository.deleteAll();
     }
 
-    // Helper: Create a sample book DTO
     private BookRequestDTO createSampleBook(String title, String isbn) {
         return BookRequestDTO.builder()
                 .title(title)
@@ -50,7 +49,6 @@ class BookControllerIntegrationTest {
                 .build();
     }
 
-    // Helper: Create book and return generated ID
     private String createBookAndReturnId(BookRequestDTO request) throws Exception {
         String response = mockMvc.perform(post("/api/books")
                         .contentType(MediaType.APPLICATION_JSON)
